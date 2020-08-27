@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Trainer", "Trainer\Trainer.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Player", "Player\Player.csproj", "{2FFF15BD-1B3E-4D3C-A437-D15258E6A6A9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SelfTrainer", "SelfTrainer\SelfTrainer.csproj", "{85392B10-7A80-4353-A8F0-1898FD1E31FE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{2FFF15BD-1B3E-4D3C-A437-D15258E6A6A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2FFF15BD-1B3E-4D3C-A437-D15258E6A6A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FFF15BD-1B3E-4D3C-A437-D15258E6A6A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{85392B10-7A80-4353-A8F0-1898FD1E31FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{85392B10-7A80-4353-A8F0-1898FD1E31FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{85392B10-7A80-4353-A8F0-1898FD1E31FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{85392B10-7A80-4353-A8F0-1898FD1E31FE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

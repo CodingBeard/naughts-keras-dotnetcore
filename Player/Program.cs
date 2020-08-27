@@ -10,40 +10,6 @@ namespace Player
 {
     class Program
     {
-        
-        static void PrintBoard(float[] board)
-        {
-            var output = "";
-            var row = "";
-            for (int i = 0; i < 9; i++)
-            {
-                if (i == 0)
-                {
-                    row = "";
-                }
-                else if (i % 3 == 0)
-                {
-                    output = output + row + "\n";
-                    row = "";
-                }
-
-                if (board[i] == 0)
-                {
-                    row = row + " -";
-                }
-                else if (board[i] == 1)
-                {
-                    row = row + " o";
-                }
-                else if (board[i] == 2)
-                {
-                    row = row + " x";
-                }
-            }
-
-            output = output + row + "\n";
-            Console.Out.WriteLine(output);
-        }
 
         static int ArgMax(NDarray array)
         {
@@ -86,7 +52,7 @@ namespace Player
                 }
             }
 
-            PrintBoard(floatBoard);
+            Board.PrintBoard(floatBoard);
             while (true)
             {
                 turns++;
@@ -123,7 +89,7 @@ namespace Player
                     }
                 }
                 
-                PrintBoard(floatBoard);
+                Board.PrintBoard(floatBoard);
                 
                 if (turn == 1)
                     turn = 2;

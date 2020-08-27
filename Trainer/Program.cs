@@ -12,7 +12,40 @@ namespace Trainer
 {
     public class Board
     {
-        
+        public static void PrintBoard(float[] board)
+        {
+            var output = "";
+            var row = "";
+            for (int i = 0; i < 9; i++)
+            {
+                if (i == 0)
+                {
+                    row = "";
+                }
+                else if (i % 3 == 0)
+                {
+                    output = output + row + "\n";
+                    row = "";
+                }
+
+                if (board[i] == 0)
+                {
+                    row = row + " -";
+                }
+                else if (board[i] == 1)
+                {
+                    row = row + " o";
+                }
+                else if (board[i] == 2)
+                {
+                    row = row + " x";
+                }
+            }
+
+            output = output + row + "\n";
+            Console.Out.WriteLine(output);
+        }
+
         public static int GetBoardState(float[] board)
         {
             //horizontal
@@ -73,17 +106,26 @@ namespace Trainer
             var moves = new float[] {0, 0, 0, 0, 0, 0, 0, 0, 0};
             var naughts = 0;
             var crosses = 0;
-            var turn = 1;
-            var oppositeTurn = 2;
+            var turn = 1f;
+            var oppositeTurn = 2f;
+            
+            var validMoveReward = 0.2f;
+            var invalidMoveReward = 0f;
+            var firstMoveReward = 0.8f;
+            var secondMoveReward = 0.8f;
+            var winningMoveReward = 0.7f;
+            var avoidingLossMoveReward = 0.8f;
+            var twoInARowReward = 0.1f;
+            
             for (int i = 0; i < 9; i++)
             {
                 if (board[i] == 0)
                 {
-                    moves[i] = 0.5f;
+                    moves[i] = validMoveReward;
                 }
                 else
                 {
-                    moves[i] = 0f;
+                    moves[i] = invalidMoveReward;
                 }
 
                 if (board[i] == 1)
@@ -97,336 +139,499 @@ namespace Trainer
                 }
             }
 
+            if (naughts == 0 && crosses == 0)
+            {
+                moves[4] = firstMoveReward;
+            }
+            
+            if ((naughts == 0 && crosses == 1) || (naughts == 1 && crosses == 0))
+            {
+                if (board[4] == 0)
+                {
+                    moves[4] = secondMoveReward;
+                }
+                else
+                {
+                    moves[0] = secondMoveReward;
+                    moves[2] = secondMoveReward;
+                    moves[6] = secondMoveReward;
+                    moves[8] = secondMoveReward;
+                }
+            }
+
             if (naughts > crosses)
             {
-                turn = 2;
-                oppositeTurn = 1;
+                turn = 2f;
+                oppositeTurn = 1f;
             }
 
             //horizontal 3rd free on turn
             if (board[0] == turn && board[1] == turn &&
                 board[2] == 0)
-                moves[2] += 0.3f;
+                moves[2] += winningMoveReward;
             if (board[3] == turn && board[4] == turn &&
                 board[5] == 0)
-                moves[5] += 0.3f;
+                moves[5] += winningMoveReward;
             if (board[6] == turn && board[7] == turn &&
                 board[8] == 0)
-                moves[8] += 0.3f;
+                moves[8] += winningMoveReward;
             //horizontal 2nd free on turn
             if (board[0] == turn && board[1] == 0 &&
                 board[2] == turn)
-                moves[1] += 0.3f;
+                moves[1] += winningMoveReward;
             if (board[3] == turn && board[4] == 0 &&
                 board[5] == turn)
-                moves[4] += 0.3f;
+                moves[4] += winningMoveReward;
             if (board[6] == turn && board[7] == 0 &&
                 board[8] == turn)
-                moves[7] += 0.3f;
+                moves[7] += winningMoveReward;
             //horizontal 1st free on turn
             if (board[0] == 0 && board[1] == turn &&
                 board[2] == turn)
-                moves[0] += 0.3f;
+                moves[0] += winningMoveReward;
             if (board[3] == 0 && board[4] == turn &&
                 board[5] == turn)
-                moves[3] += 0.3f;
+                moves[3] += winningMoveReward;
             if (board[6] == 0 && board[7] == turn &&
                 board[8] == turn)
-                moves[6] += 0.3f;
+                moves[6] += winningMoveReward;
             //horizontal 3rd free off turn
             if (board[0] == oppositeTurn && board[1] == oppositeTurn &&
                 board[2] == 0)
-                moves[2] += 0.3f;
+                moves[2] += avoidingLossMoveReward;
             if (board[3] == oppositeTurn && board[4] == oppositeTurn &&
                 board[5] == 0)
-                moves[5] += 0.3f;
+                moves[5] += avoidingLossMoveReward;
             if (board[6] == oppositeTurn && board[7] == oppositeTurn &&
                 board[8] == 0)
-                moves[8] += 0.3f;
+                moves[8] += avoidingLossMoveReward;
             //horizontal 2nd free off oppositeTurn
             if (board[0] == oppositeTurn && board[1] == 0 &&
                 board[2] == oppositeTurn)
-                moves[1] += 0.3f;
+                moves[1] += avoidingLossMoveReward;
             if (board[3] == oppositeTurn && board[4] == 0 &&
                 board[5] == oppositeTurn)
-                moves[4] += 0.3f;
+                moves[4] += avoidingLossMoveReward;
             if (board[6] == oppositeTurn && board[7] == 0 &&
                 board[8] == oppositeTurn)
-                moves[7] += 0.3f;
+                moves[7] += avoidingLossMoveReward;
             //horizontal 1st free off oppositeTurn
             if (board[0] == 0 && board[1] == oppositeTurn &&
                 board[2] == oppositeTurn)
-                moves[0] += 0.3f;
+                moves[0] += avoidingLossMoveReward;
             if (board[3] == 0 && board[4] == oppositeTurn &&
                 board[5] == oppositeTurn)
-                moves[3] += 0.3f;
+                moves[3] += avoidingLossMoveReward;
             if (board[6] == 0 && board[7] == oppositeTurn &&
                 board[8] == oppositeTurn)
-                moves[6] += 0.3f;
+                moves[6] += avoidingLossMoveReward;
             //vertical 3rd free on turn
             if (board[0] == turn && board[3] == turn &&
                 board[6] == 0)
-                moves[6] += 0.3f;
+                moves[6] += winningMoveReward;
             if (board[1] == turn && board[4] == turn &&
                 board[7] == 0)
-                moves[7] += 0.3f;
+                moves[7] += winningMoveReward;
             if (board[2] == turn && board[5] == turn &&
                 board[8] == 0)
-                moves[8] += 0.3f;
+                moves[8] += winningMoveReward;
             //vertical 2nd free on turn
             if (board[0] == turn && board[3] == 0 &&
                 board[6] == turn)
-                moves[3] += 0.3f;
+                moves[3] += winningMoveReward;
             if (board[1] == turn && board[4] == 0 &&
                 board[7] == turn)
-                moves[4] += 0.3f;
+                moves[4] += winningMoveReward;
             if (board[2] == turn && board[5] == 0 &&
                 board[8] == turn)
-                moves[5] += 0.3f;
+                moves[5] += winningMoveReward;
             //vertical 1st free on turn
             if (board[0] == 0 && board[3] == turn &&
                 board[6] == turn)
-                moves[0] += 0.3f;
+                moves[0] += winningMoveReward;
             if (board[1] == 0 && board[4] == turn &&
                 board[7] == turn)
-                moves[1] += 0.3f;
+                moves[1] += winningMoveReward;
             if (board[2] == 0 && board[5] == turn &&
                 board[8] == turn)
-                moves[2] += 0.3f;
+                moves[2] += winningMoveReward;
             //vertical 3rd free off turn
             if (board[0] == oppositeTurn && board[3] == oppositeTurn &&
                 board[6] == 0)
-                moves[6] += 0.3f;
+                moves[6] += avoidingLossMoveReward;
             if (board[1] == oppositeTurn && board[4] == oppositeTurn &&
                 board[7] == 0)
-                moves[7] += 0.3f;
+                moves[7] += avoidingLossMoveReward;
             if (board[2] == oppositeTurn && board[5] == oppositeTurn &&
                 board[8] == 0)
-                moves[8] += 0.3f;
+                moves[8] += avoidingLossMoveReward;
             //vertical 2nd free off oppositeTurn
             if (board[0] == oppositeTurn && board[3] == 0 &&
                 board[6] == oppositeTurn)
-                moves[3] += 0.3f;
+                moves[3] += avoidingLossMoveReward;
             if (board[1] == oppositeTurn && board[4] == 0 &&
                 board[7] == oppositeTurn)
-                moves[4] += 0.3f;
+                moves[4] += avoidingLossMoveReward;
             if (board[2] == oppositeTurn && board[5] == 0 &&
                 board[8] == oppositeTurn)
-                moves[5] += 0.3f;
+                moves[5] += avoidingLossMoveReward;
             //vertical 1st free off oppositeTurn
             if (board[0] == 0 && board[3] == oppositeTurn &&
                 board[6] == oppositeTurn)
-                moves[0] += 0.3f;
+                moves[0] += avoidingLossMoveReward;
             if (board[1] == 0 && board[4] == oppositeTurn &&
                 board[7] == oppositeTurn)
-                moves[1] += 0.3f;
+                moves[1] += avoidingLossMoveReward;
             if (board[2] == 0 && board[5] == oppositeTurn &&
                 board[8] == oppositeTurn)
-                moves[2] += 0.3f;
+                moves[2] += avoidingLossMoveReward;
 
             //diagonal 3rd free on turn
             if (board[0] == turn && board[4] == turn &&
                 board[8] == 0)
-                moves[8] += 0.3f;
+                moves[8] += winningMoveReward;
             if (board[2] == turn && board[4] == turn &&
                 board[6] == 0)
-                moves[6] += 0.3f;
+                moves[6] += winningMoveReward;
             //diagonal 2nd free on turn
             if (board[0] == turn && board[4] == 0 &&
                 board[8] == turn)
-                moves[4] += 0.3f;
+                moves[4] += winningMoveReward;
             if (board[2] == turn && board[4] == 0 &&
                 board[6] == turn)
-                moves[4] += 0.3f;
+                moves[4] += winningMoveReward;
             //diagonal 1st free on turn
             if (board[0] == 0 && board[4] == turn &&
                 board[8] == turn)
-                moves[0] += 0.3f;
+                moves[0] += winningMoveReward;
             if (board[2] == 0 && board[4] == turn &&
                 board[6] == turn)
-                moves[2] += 0.3f;
+                moves[2] += winningMoveReward;
 
             //diagonal 3rd free off turn
             if (board[0] == oppositeTurn && board[4] == oppositeTurn &&
                 board[8] == 0)
-                moves[8] += 0.3f;
+                moves[8] += avoidingLossMoveReward;
             if (board[2] == oppositeTurn && board[4] == oppositeTurn &&
                 board[6] == 0)
-                moves[6] += 0.3f;
+                moves[6] += avoidingLossMoveReward;
             //diagonal 2nd free off turn
             if (board[0] == oppositeTurn && board[4] == 0 &&
                 board[8] == oppositeTurn)
-                moves[4] += 0.3f;
+                moves[4] += avoidingLossMoveReward;
             if (board[2] == oppositeTurn && board[4] == 0 &&
                 board[6] == oppositeTurn)
-                moves[4] += 0.3f;
+                moves[4] += avoidingLossMoveReward;
             //diagonal 1st free off turn
             if (board[0] == 0 && board[4] == oppositeTurn &&
                 board[8] == oppositeTurn)
-                moves[0] += 0.3f;
-            if (board[2] == 0 && board[4] == turn &&
-                board[6] == turn)
-                moves[2] += 0.3f;
+                moves[0] += avoidingLossMoveReward;
+            if (board[2] == 0 && board[4] == oppositeTurn &&
+                board[6] == oppositeTurn)
+                moves[2] += avoidingLossMoveReward;
 
             //horizontal 2nd, 3rd free on turn
             if (board[0] == turn && board[1] == 0 && board[2] == 0)
             {
-                moves[1] += 0.1f;
-                moves[2] += 0.1f;
+                moves[1] += twoInARowReward;
+                moves[2] += twoInARowReward;
             }
 
             if (board[3] == turn && board[4] == 0 && board[5] == 0)
             {
-                moves[4] += 0.1f;
-                moves[5] += 0.1f;
+                moves[4] += twoInARowReward;
+                moves[5] += twoInARowReward;
             }
 
             if (board[6] == turn && board[7] == 0 && board[8] == 0)
             {
-                moves[7] += 0.1f;
-                moves[8] += 0.1f;
+                moves[7] += twoInARowReward;
+                moves[8] += twoInARowReward;
             }
 
             //horizontal 1st, 2nd free on turn
             if (board[0] == 0 && board[1] == 0 && board[2] == turn)
             {
-                moves[0] += 0.1f;
-                moves[1] += 0.1f;
+                moves[0] += twoInARowReward;
+                moves[1] += twoInARowReward;
             }
 
             if (board[3] == 0 && board[4] == 0 && board[5] == turn)
             {
-                moves[3] += 0.1f;
-                moves[4] += 0.1f;
+                moves[3] += twoInARowReward;
+                moves[4] += twoInARowReward;
             }
 
             if (board[6] == 0 && board[7] == 0 && board[8] == turn)
             {
-                moves[6] += 0.1f;
-                moves[7] += 0.1f;
+                moves[6] += twoInARowReward;
+                moves[7] += twoInARowReward;
             }
 
             //horizontal 1st, 3rd free on turn
             if (board[0] == 0 && board[1] == turn && board[2] == 0)
             {
-                moves[0] += 0.1f;
-                moves[2] += 0.1f;
+                moves[0] += twoInARowReward;
+                moves[2] += twoInARowReward;
             }
 
             if (board[3] == 0 && board[4] == turn && board[5] == 0)
             {
-                moves[3] += 0.1f;
-                moves[5] += 0.1f;
+                moves[3] += twoInARowReward;
+                moves[5] += twoInARowReward;
             }
 
             if (board[6] == 0 && board[7] == turn && board[8] == 0)
             {
-                moves[6] += 0.1f;
-                moves[8] += 0.1f;
+                moves[6] += twoInARowReward;
+                moves[8] += twoInARowReward;
             }
 
             //vertical 2nd, 3rd free on turn
             if (board[0] == turn && board[3] == 0 && board[6] == 0)
             {
-                moves[3] += 0.1f;
-                moves[6] += 0.1f;
+                moves[3] += twoInARowReward;
+                moves[6] += twoInARowReward;
             }
 
             if (board[1] == turn && board[4] == 0 && board[7] == 0)
             {
-                moves[4] += 0.1f;
-                moves[7] += 0.1f;
+                moves[4] += twoInARowReward;
+                moves[7] += twoInARowReward;
             }
 
             if (board[2] == turn && board[5] == 0 && board[8] == 0)
             {
-                moves[5] += 0.1f;
-                moves[8] += 0.1f;
+                moves[5] += twoInARowReward;
+                moves[8] += twoInARowReward;
             }
 
             //vertical 1st, 2nd free on turn
             if (board[0] == 0 && board[3] == 0 && board[6] == turn)
             {
-                moves[0] += 0.1f;
-                moves[3] += 0.1f;
+                moves[0] += twoInARowReward;
+                moves[3] += twoInARowReward;
             }
 
             if (board[1] == 0 && board[4] == 0 && board[7] == turn)
             {
-                moves[1] += 0.1f;
-                moves[4] += 0.1f;
+                moves[1] += twoInARowReward;
+                moves[4] += twoInARowReward;
             }
 
             if (board[2] == 0 && board[5] == 0 && board[8] == turn)
             {
-                moves[2] += 0.1f;
-                moves[5] += 0.1f;
+                moves[2] += twoInARowReward;
+                moves[5] += twoInARowReward;
             }
 
             //vertical 1st, 3rd free on turn
             if (board[0] == 0 && board[3] == turn && board[6] == 0)
             {
-                moves[0] += 0.1f;
-                moves[6] += 0.1f;
+                moves[0] += twoInARowReward;
+                moves[6] += twoInARowReward;
             }
 
             if (board[1] == 0 && board[4] == turn && board[7] == 0)
             {
-                moves[1] += 0.1f;
-                moves[7] += 0.1f;
+                moves[1] += twoInARowReward;
+                moves[7] += twoInARowReward;
             }
 
             if (board[2] == 0 && board[5] == turn && board[8] == 0)
             {
-                moves[2] += 0.1f;
-                moves[8] += 0.1f;
+                moves[2] += twoInARowReward;
+                moves[8] += twoInARowReward;
             }
 
             //diagonal 2nd, 3rd free on turn
             if (board[0] == turn && board[4] == 0 && board[8] == 0)
             {
-                moves[4] += 0.1f;
-                moves[8] += 0.1f;
+                moves[4] += twoInARowReward;
+                moves[8] += twoInARowReward;
             }
 
             if (board[2] == turn && board[4] == 0 && board[6] == 0)
             {
-                moves[4] += 0.1f;
-                moves[6] += 0.1f;
+                moves[4] += twoInARowReward;
+                moves[6] += twoInARowReward;
             }
 
             //diagonal 1st, 2nd free on turn
             if (board[0] == 0 && board[4] == 0 && board[8] == turn)
             {
-                moves[0] += 0.1f;
-                moves[4] += 0.1f;
+                moves[0] += twoInARowReward;
+                moves[4] += twoInARowReward;
             }
 
             if (board[2] == 0 && board[4] == 0 && board[6] == turn)
             {
-                moves[2] += 0.1f;
-                moves[4] += 0.1f;
+                moves[2] += twoInARowReward;
+                moves[4] += twoInARowReward;
             }
 
             //diagonal 1st, 3rd free on turn
             if (board[0] == 0 && board[4] == turn && board[8] == 0)
             {
-                moves[0] += 0.1f;
-                moves[8] += 0.1f;
+                moves[0] += twoInARowReward;
+                moves[8] += twoInARowReward;
             }
 
             if (board[2] == 0 && board[4] == turn && board[6] == 0)
             {
-                moves[2] += 0.1f;
-                moves[6] += 0.1f;
+                moves[2] += twoInARowReward;
+                moves[6] += twoInARowReward;
+            }
+
+            var key = 0;
+            foreach (var move in moves)
+            {
+                if (move > 1f)
+                {
+                    moves[key] = 1f;
+                }
+                key++;
             }
 
             return moves;
         }
+
+        static int ArgMax(NDarray array)
+        {
+            var random = new Random();
+            var max = 0f;
+            var key = 0;
+            var maxKeys = new List<int>();
+            foreach (var output in array.GetData<float>())
+            {
+                if (output > max)
+                {
+                    max = output;
+                }
+            }
+            foreach (var output in array.GetData<float>())
+            {
+                if (output == max)
+                {
+                    maxKeys.Add(key);
+                }
+
+                key++;
+            }
+
+            if (maxKeys.Count > 0)
+            {
+                return maxKeys[random.Next(maxKeys.Count)];
+            }
+
+            return 0;
+        }
+
+        static bool IsValidMove(int[] moves, int move)
+        {
+            bool valid = false;
+            foreach (var validMove in moves)
+            {
+                if (move == validMove)
+                {
+                    valid = true;
+                    break;
+                }
+            }
+
+            return valid;
+        }
+        
+        public static int[] GetStats(Sequential model, int games)
+        {
+            var wins = 0;
+            var losses = 0;
+            var draws = 0;
+            var invalid = 0;
+            var aiRole = 1;
+
+            for (int i = 0; i < games; i++)
+            {
+                var random = new Random();
+                var floatBoard = new float[] {0, 0, 0, 0, 0, 0, 0, 0, 0,};
+                var turn = 1;
+                while (true)
+                {
+                    var validMoves = Board.GetMoves(floatBoard);
+                    int move;
+
+                    if (turn != aiRole)
+                    {
+                        // move = ArgMax(Board.GetMoveRewards(floatBoard));
+                        move = validMoves[random.Next(validMoves.Length)];
+                    }
+                    else
+                    {
+                        var predicitons = model.Predict(
+                            np.array(new List<NDarray>() {np.array(floatBoard)}.ToArray()),
+                            verbose: 0
+                        );
+                        move = ArgMax(predicitons);
+                    }
+
+                    if (!IsValidMove(validMoves, move))
+                    {
+                        invalid++;
+                        break;
+                    }
+
+                    floatBoard[move] = turn;
+
+                    var moves = Board.GetMoves(floatBoard);
+                    var state = Board.GetBoardState(floatBoard);
+                    if (state == 0 && moves.Length == 0)
+                    {
+                        draws++;
+                        break;
+                    }
+                    else if (state == 1)
+                    {
+                        if (state == aiRole)
+                            wins++;
+                        else
+                            losses++;
+                        break;
+                    }
+                    else if (state == 2)
+                    {
+                        if (state == aiRole)
+                            wins++;
+                        else
+                            losses++;
+                        break;
+                    }
+
+                    if (turn == 1)
+                        turn = 2;
+                    else
+                        turn = 1;
+                }
+
+                if (aiRole == 1)
+                    aiRole = 2;
+                else
+                    aiRole = 1;
+            }
+
+            Console.WriteLine(
+                "Wins: {0}, Losses: {1}, Draws: {2}, Invalids: {3}",
+                wins,
+                losses + invalid,
+                draws,
+                invalid
+            );
+
+            return new[] {wins, losses, draws, invalid};
+        }
     }
+
     class Program
     {
-
         static void Main(string[] args)
         {
             var random = new Random();
@@ -484,7 +689,7 @@ namespace Trainer
                         else
                         {
                             turn = 1;
-                        } 
+                        }
                     }
 
                     var state = Board.GetBoardState(board);
@@ -523,19 +728,23 @@ namespace Trainer
             {
                 moveBoardsNdArray.Add(np.array(moveBoard));
             }
+
             var boardRewardsNdArray = new List<NDarray>();
             foreach (var boardReward in boardRewards)
             {
                 boardRewardsNdArray.Add(np.array(boardReward));
             }
+
             model.Fit(
-                np.array(moveBoardsNdArray.ToArray()), 
-                np.array(boardRewardsNdArray.ToArray()), 
-                batch_size: 50, 
+                np.array(moveBoardsNdArray.ToArray()),
+                np.array(boardRewardsNdArray.ToArray()),
+                batch_size: 50,
                 verbose: 1,
                 epochs: 10
             );
-            
+
+            Board.GetStats(model, 100);
+
             string json = model.ToJson();
             File.WriteAllText(@"C:\code\github\codingbeard\naughts.net\Naughts.Net\Trainer\model.json", json);
             model.SaveWeight(@"C:\code\github\codingbeard\naughts.net\Naughts.Net\Trainer\model.h5");
